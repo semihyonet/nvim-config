@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -238,7 +238,117 @@ vim.opt.rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
-  -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
+  --
+
+  {
+    'nvim-tree/nvim-tree.lua',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('nvim-tree').setup {
+        view = { width = 30, side = 'left' },
+        renderer = { icons = { show = { git = false } } },
+
+        vim.keymap.set('n', '<leader>e', '<CMD>NvimTreeToggle<CR>', { desc = 'Toggle Searchbar' }),
+        vim.keymap.set('n', '<leader>El', '<CMD>NvimTreeFindFileToggle<CR>', { desc = 'Find Current Open file' }),
+        vim.keymap.set('n', '<leader>Ey', '<CMD>NvimTreeRefresh<CR>', { desc = 'Refresh Filetree' }),
+        vim.keymap.set('n', '<leader>Ec', '<CMD>NvimTreeCollapse<CR>', { desc = 'Collapse Tree' }),
+        vim.keymap.set('n', '<leader>Ec', '<CMD>NvimTreeCollapseKeepBuffers<CR>', { desc = 'Collapse Tree but keep current buffers' }),
+      }
+    end,
+  },
+  {
+    'aznhe21/actions-preview.nvim',
+    config = function()
+      local actions_stuff = require 'actions-preview'
+      vim.keymap.set({ 'v', 'n' }, '<A-g>', actions_stuff.code_actions)
+    end,
+  },
+  {
+    'lewis6991/gitsigns.nvim',
+    config = function()
+      require('gitsigns').setup()
+    end,
+  },
+  'rebelot/kanagawa.nvim',
+  {
+    'romgrk/barbar.nvim',
+    dependencies = {
+      'lewis6991/gitsigns.nvim', -- OPTIONAL: for git status
+      'nvim-tree/nvim-web-devicons', -- OPTIONAL: for file icons
+    },
+    init = function()
+      vim.g.barbar_auto_setup = false
+    end,
+    opts = {
+      -- lazy.nvim will automatically call setup for you. put your options here, anything missing will use the default:
+      -- animation = true,
+      -- insert_at_start = true,
+      -- …etc.
+    },
+    version = '^1.0.0', -- optional: only update when a new 1.x version is released
+    config = function()
+      local map = vim.api.nvim_set_keymap
+
+      local opts = { noremap = true, silent = true }
+      require('barbar').setup {
+        view = { width = 30, side = 'left' },
+        renderer = { icons = { show = { git = false } } },
+
+        map('n', '<A-,>', '<Cmd>BufferPrevious<CR>', opts),
+        map('n', '<A-.>', '<Cmd>BufferNext<CR>', opts),
+
+        -- Re-order to previous/next
+        map('n', '<A-<>', '<Cmd>BufferMovePrevious<CR>', opts),
+        map('n', '<A->>', '<Cmd>BufferMoveNext<CR>', opts),
+
+        -- Goto buffer in position...
+        map('n', '<A-1>', '<Cmd>BufferGoto 1<CR>', opts),
+        map('n', '<A-2>', '<Cmd>BufferGoto 2<CR>', opts),
+        map('n', '<A-3>', '<Cmd>BufferGoto 3<CR>', opts),
+        map('n', '<A-4>', '<Cmd>BufferGoto 4<CR>', opts),
+        map('n', '<A-5>', '<Cmd>BufferGoto 5<CR>', opts),
+        map('n', '<A-6>', '<Cmd>BufferGoto 6<CR>', opts),
+        map('n', '<A-7>', '<Cmd>BufferGoto 7<CR>', opts),
+        map('n', '<A-8>', '<Cmd>BufferGoto 8<CR>', opts),
+        map('n', '<A-9>', '<Cmd>BufferGoto 9<CR>', opts),
+        map('n', '<A-0>', '<Cmd>BufferLast<CR>', opts),
+
+        -- Pin/unpin buffer
+        map('n', '<A-p>', '<Cmd>BufferPin<CR>', opts),
+
+        -- Goto pinned/unpinned buffer
+        --                 :BufferGotoPinned
+        --                 :BufferGotoUnpinned
+
+        -- Close buffer
+        map('n', '<A-c>', '<Cmd>BufferClose<CR>', opts),
+
+        -- Wipeout buffer
+        --                 :BufferWipeout
+
+        -- Close commands
+        --                 :BufferCloseAllButCurrent
+        --                 :BufferCloseAllButPinned
+        --                 :BufferCloseAllButCurrentOrPinned
+        --                 :BufferCloseBuffersLeft
+        --                 :BufferCloseBuffersRight
+
+        -- Magic buffer-picking mode
+        map('n', '<C-p>', '<Cmd>BufferPick<CR>', opts),
+        map('n', '<C-s-p>', '<Cmd>BufferPickDelete<CR>', opts),
+
+        -- Sort automatically by...
+        map('n', '<Space>bb', '<Cmd>BufferOrderByBufferNumber<CR>', opts),
+        map('n', '<Space>bn', '<Cmd>BufferOrderByName<CR>', opts),
+        map('n', '<Space>bd', '<Cmd>BufferOrderByDirectory<CR>', opts),
+        map('n', '<Space>bl', '<Cmd>BufferOrderByLanguage<CR>', opts),
+        map('n', '<Space>bw', '<Cmd>BufferOrderByWindowNumber<CR>', opts),
+
+        -- Other:
+      }
+    end,
+    -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
+  },
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
   -- NOTE: Plugins can also be added by using a table,
@@ -893,6 +1003,15 @@ require('lazy').setup({
     end,
   },
 
+  {
+    'folke/noice.nvim',
+    dependencies = { 'MunifTanjim/nui.nvim' },
+    config = function()
+      require('noice').setup()
+    end,
+  },
+  { 'kepano/flexoki-neovim', name = 'flexoki' },
+
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
     -- change the command in the config to whatever the name of that colorscheme is.
@@ -911,7 +1030,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'kanagawa-wave'
     end,
   },
 
