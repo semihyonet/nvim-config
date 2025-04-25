@@ -245,10 +245,11 @@ require('lazy').setup({
     dependencies = { 'nvim-tree/nvim-web-devicons' },
     config = function()
       require('nvim-tree').setup {
-        view = { width = 30, side = 'left' },
+        view = { width = 90, side = 'left' },
         renderer = { icons = { show = { git = false } } },
 
-        vim.keymap.set('n', '<leader>e', '<CMD>NvimTreeToggle<CR>', { desc = 'Toggle Searchbar' }),
+        vim.keymap.set('n', '<leader>r', '<CMD>NvimTreeToggle<CR>', { desc = 'Toggle Searchbar' }),
+        vim.keymap.set('n', '<leader>e', '<CMD>NvimTreeFocus<CR>', { desc = 'Toggle Searchbar' }),
         vim.keymap.set('n', '<leader>El', '<CMD>NvimTreeFindFileToggle<CR>', { desc = 'Find Current Open file' }),
         vim.keymap.set('n', '<leader>Ey', '<CMD>NvimTreeRefresh<CR>', { desc = 'Refresh Filetree' }),
         vim.keymap.set('n', '<leader>Ec', '<CMD>NvimTreeCollapse<CR>', { desc = 'Collapse Tree' }),
@@ -270,6 +271,63 @@ require('lazy').setup({
     end,
   },
   'rebelot/kanagawa.nvim',
+  'mg979/vim-visual-multi',
+  {
+    'dense-analysis/ale',
+    config = function()
+      -- Configuration goes here.
+      local g = vim.g
+
+      g.ale_ruby_rubocop_auto_correct_all = 1
+
+      g.ale_linters = {
+        python = { 'basedpyright' },
+        --        ruby = { 'rubocop', 'ruby' },
+        --        lua = { 'lua_language_server' },
+      }
+    end,
+  },
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+  },
+  {
+    'folke/trouble.nvim',
+    opts = {}, -- for default options, refer to the configuration section for custom setup.
+    cmd = 'Trouble',
+    keys = {
+      {
+        '<leader>xx',
+        '<cmd>Trouble diagnostics toggle<cr>',
+        desc = 'Diagnostics (Trouble)',
+      },
+      {
+        '<leader>xX',
+        '<cmd>Trouble diagnostics toggle filter.buf=0<cr>',
+        desc = 'Buffer Diagnostics (Trouble)',
+      },
+      {
+        '<leader>cs',
+        '<cmd>Trouble symbols toggle focus=false<cr>',
+        desc = 'Symbols (Trouble)',
+      },
+      {
+        '<leader>cl',
+        '<cmd>Trouble lsp toggle focus=false win.position=right<cr>',
+        desc = 'LSP Definitions / references / ... (Trouble)',
+      },
+      {
+        '<leader>xL',
+        '<cmd>Trouble loclist toggle<cr>',
+        desc = 'Location List (Trouble)',
+      },
+      {
+        '<leader>xQ',
+        '<cmd>Trouble qflist toggle<cr>',
+        desc = 'Quickfix List (Trouble)',
+      },
+    },
+  },
   {
     'romgrk/barbar.nvim',
     dependencies = {
@@ -781,7 +839,20 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        basedpyright = {
+          settings = {
+            basedpyright = {
+              typeCheckingMode = 'basic',
+              diagnosticMode = 'openFilesOnly', -- Optional, reduces noise
+              analysis = {
+                autoSearchPaths = true,
+                useLibraryCodeForTypes = true,
+                variableTypes = false,
+              },
+            },
+          },
+        },
+
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -877,7 +948,7 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
+        python = { 'black' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
@@ -1019,10 +1090,14 @@ require('lazy').setup({
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
     'folke/tokyonight.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
+
     config = function()
       ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
+      require('kanagawa').setup {
+        transparent = true,
         styles = {
+          sidebars = 'transparent',
+          floats = 'transparent',
           comments = { italic = false }, -- Disable italics in comments
         },
       }
