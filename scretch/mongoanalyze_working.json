@@ -1,0 +1,230 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "cache_database.package_search_documents",
+          "indexFilterSet": false,
+          "parsedQuery": {},
+          "queryHash": "5F5FC979",
+          "planCacheKey": "5F5FC979",
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "COLLSCAN",
+            "direction": "forward"
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 379,
+          "executionTimeMillis": 79,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 379,
+          "executionStages": {
+            "stage": "COLLSCAN",
+            "nReturned": 379,
+            "executionTimeMillisEstimate": 0,
+            "works": 380,
+            "advanced": 379,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "direction": "forward",
+            "docsExamined": 379
+          }
+        }
+      },
+      "nReturned": 379,
+      "executionTimeMillisEstimate": 1
+    },
+    {
+      "$lookup": {
+        "from": "price_cache_discoveroo",
+        "as": "priceData",
+        "let": {
+          "packageId": "$package_id",
+          "campaignId": "$campaign_id",
+          "bookingWindow": "$booking_window"
+        },
+        "pipeline": [
+          {
+            "$match": {
+              "$expr": {
+                "$and": [
+                  {
+                    "$eq": [
+                      "$package_id",
+                      "$$packageId"
+                    ]
+                  },
+                  {
+                    "$gte": [
+                      {
+                        "$dateFromString": {
+                          "dateString": "$expires_at"
+                        }
+                      },
+                      {
+                        "$dateSubtract": {
+                          "startDate": "$$NOW",
+                          "amount": 24,
+                          "unit": "hour"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "$gte": [
+                      {
+                        "$dateFromString": {
+                          "dateString": "$date"
+                        }
+                      },
+                      {
+                        "$dateAdd": {
+                          "unit": "day",
+                          "amount": "$$bookingWindow",
+                          "startDate": "$$NOW"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "$sort": {
+              "price": 1
+            }
+          },
+          {
+            "$limit": 1
+          }
+        ]
+      },
+      "totalDocsExamined": 1211,
+      "totalKeysExamined": 1211,
+      "collectionScans": 0,
+      "indexesUsed": [
+        "package_id_1_price_1_date_1_custom_departure_airport_1"
+      ],
+      "nReturned": 379,
+      "executionTimeMillisEstimate": 80
+    }
+  ],
+  "serverInfo": {
+    "host": "atlas-j5i2cg-shard-00-02.hbsnf.mongodb.net",
+    "port": 27017,
+    "version": "6.0.20",
+    "gitVersion": "ef4efd469fb0c5626c629c4f0f21398c9b5dd08f"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "command": {
+    "aggregate": "package_search_documents",
+    "pipeline": [
+      {
+        "$lookup": {
+          "from": "price_cache_discoveroo",
+          "as": "priceData",
+          "let": {
+            "packageId": "$package_id",
+            "campaignId": "$campaign_id",
+            "bookingWindow": "$booking_window"
+          },
+          "pipeline": [
+            {
+              "$match": {
+                "$expr": {
+                  "$and": [
+                    {
+                      "$eq": [
+                        "$package_id",
+                        "$$packageId"
+                      ]
+                    },
+                    {
+                      "$gte": [
+                        {
+                          "$dateFromString": {
+                            "dateString": "$expires_at"
+                          }
+                        },
+                        {
+                          "$dateSubtract": {
+                            "startDate": "$$NOW",
+                            "amount": 24,
+                            "unit": "hour"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "$gte": [
+                        {
+                          "$dateFromString": {
+                            "dateString": "$date"
+                          }
+                        },
+                        {
+                          "$dateAdd": {
+                            "unit": "day",
+                            "amount": "$$bookingWindow",
+                            "startDate": "$$NOW"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "$sort": {
+                "price": 1
+              }
+            },
+            {
+              "$limit": 1
+            }
+          ]
+        }
+      }
+    ],
+    "cursor": {},
+    "maxTimeMS": 60000,
+    "$db": "cache_database"
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": {
+      "$timestamp": "7485399888302178365"
+    },
+    "signature": {
+      "hash": "YP+/5x7ZF/wVeFsk6AoD9A3iLDU=",
+      "keyId": {
+        "low": 4,
+        "high": 1734766641,
+        "unsigned": false
+      }
+    }
+  },
+  "operationTime": {
+    "$timestamp": "7485399888302178365"
+  }
+}
